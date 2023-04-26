@@ -1,25 +1,15 @@
 name: Hyperexecute-Playwright
 on:
+  schedule:
+    - cron: '30 5,17 * * *'
   workflow_dispatch:
-    inputs:
-      username:
-        required: true
-        description: LT Username
-      accessKey:
-        description: LT Access Key
-        required: true
-      sampleRepoLink:
-        description: Link to the HyperExecute sample repo
-        default: https://github.com/prateekLambda/HyperExecute-Playwright-Vanilla-Javascript
-        required: true
+  
 jobs:
   HyperExecute-Playwright:
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     timeout-minutes: 15
     strategy:
       fail-fast: false
-      matrix:
-        os: [windows-latest]
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
@@ -27,13 +17,8 @@ jobs:
       - name: Starting CLI testing
         shell: bash
         run: |
-          echo "STEP 1 ) Downloading sample suite"
-          git clone ${{ github.event.inputs.sampleRepoLink }}
-          echo "STEP 2) Download CLI and setting environment variables"
-              cd HyperExecute-Playwright-Vanilla-Javascript
-              curl https://downloads.lambdatest.com/hyperexecute/windows/hyperexecute.exe -o hyperexecute.exe
-              export LT_USERNAME=${{ github.event.inputs.username }}
-              export LT_ACCESS_KEY=${{ github.event.inputs.accessKey }}
-              echo $LT_USERNAME 
-              echo $LT_ACCESS_KEY
-              ./hyperexecute --user $LT_USERNAME --key $LT_ACCESS_KEY --config yaml/win/.hyperexecute_autosplits.yaml
+          git clone https://github.com/swapnilrlambda/HyperExecute-Playwright-Vanilla-Javascript
+          curl https://downloads.lambdatest.com/hyperexecute/windows/hyperexecute.exe -o hyperexecute.exe
+          chmod +x hyperexecute
+          ./hyperexecute --user ${{ secrets.username }} --key ${{ secrets.accesskey }} --download-artifacts --config yaml/win/.hyperexecute_autosplits.yaml
+          echo "Test completion"
